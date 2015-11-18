@@ -48,12 +48,20 @@ class TwitterSearch:
 
             # Our max tweet is the last tweet in the list
             max_tweet = tweets[-1]
-            if min_tweet['tweet_id'] is not max_tweet['tweet_id']:
-                max_position = "TWEET-%s-%s" % (max_tweet['tweet_id'], min_tweet['tweet_id'])
-                url = self.construct_url(query, max_position=max_position)
-                # Sleep for our rate_delay
-                sleep(self.rate_delay)
-                response = self.execute_search(url)
+
+            if 'min_position' in response:
+                url = self.construct_url(query, max_position=response['min_position'])
+                print 'min_position found! Using:', url
+            else:
+                if min_tweet['tweet_id'] is not max_tweet['tweet_id']:
+                    max_position = "TWEET-%s-%s" % (max_tweet['tweet_id'], min_tweet['tweet_id'])
+                    url = self.construct_url(query, max_position=max_position)
+                    print 'min_position not found. Using:', url
+                else:
+                    break
+            # Sleep for our rate_delay
+            sleep(self.rate_delay)
+            response = self.execute_search(url)
 
     def execute_search(self, url):
         """
@@ -64,7 +72,7 @@ class TwitterSearch:
         try:
             # Specify a user agent to prevent Twitter from returning a profile card
             headers = {
-                'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36'
+                'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.8 Safari/537.36'
             }
             req = urllib2.Request(url, headers=headers)
             response = urllib2.urlopen(req)
@@ -146,7 +154,7 @@ class TwitterSearch:
 
         params = {
             # Type Param
-            'f': 'tweets',
+            #'f': 'tweets',
             # Query Param
             'q': query
         }
